@@ -14,7 +14,7 @@ public class EP2 {
         }
     }
 
-    public void inicializar (Grafo grafo){
+    public void inicializarCaminhosMinimos (Grafo grafo){
         custo = new int [grafo.n];
         pais = new int [grafo.n];
     }
@@ -22,7 +22,7 @@ public class EP2 {
     public void BellmanFordDAG(Grafo grafo, int chaveInicial) {
         // Infinito eh o numero de pior caso (caso todos os vertices tenham peso k)
         int infinito = grafo.k * grafo.n;
-        inicializar(grafo);
+        inicializarCaminhosMinimos(grafo);
         // Atribui peso 0
         custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
@@ -41,7 +41,7 @@ public class EP2 {
                 arestas = grafo.vertices[j].primeiroArco;
                 while (arestas != null) {
                     if (custo[arestas.chave1] != infinito) {
-                        relaxar(grafo, arestas);
+                        relaxar(arestas);
                         arestas = arestas.irmao;
                     }
 
@@ -56,7 +56,7 @@ public class EP2 {
         // Infinito eh o numero de pior caso (caso todos os vertices tenham peso k)
         int infinito = grafo.k * grafo.n;
         // Atribui peso 0
-        inicializar(grafo);
+        inicializarCaminhosMinimos(grafo);
         custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
 
@@ -73,7 +73,7 @@ public class EP2 {
             for (int j = 0; j < grafo.vertices.length; j++) {
                 arestas = grafo.vertices[j].primeiroArco;
                 while (arestas != null) {
-                    relaxar(grafo, arestas);
+                    relaxar(arestas);
                     arestas = arestas.irmao;
 
                 }
@@ -94,7 +94,7 @@ public class EP2 {
 
     }
 
-    public void relaxar(Grafo grafo, Arco arco) {
+    public void relaxar(Arco arco) {
         if (custo[arco.chave2] > custo[arco.chave1] + arco.peso) {
             custo[arco.chave2] = custo[arco.chave1] + arco.peso;
             pais[arco.chave2] = arco.chave1;
@@ -104,7 +104,7 @@ public class EP2 {
 
     public void Dijkstra(Grafo grafo, int chaveInicial) {
         int infinito = grafo.k * grafo.n;
-        inicializar(grafo);
+        inicializarCaminhosMinimos(grafo);
         custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
 
@@ -120,30 +120,31 @@ public class EP2 {
             }
         }
 
+
         iniciapq();
         inserirPq(grafo.vertices[chaveInicial]);
+                
         while (!pqVazio()) {
-            for(int i =1; i<=N;i++){
-                System.out.println(pq[i].chave);
-            }
-            Vertice aux = minimo();
+
+               Vertice aux = minimo();
             arcos = aux.primeiroArco;
-            System.out.println("***********");
             boolean visitado;
             while (arcos != null) {
+            
                 visitado = custo[arcos.chave2] != infinito;
-                relaxar(grafo, arcos);
+                relaxar(arcos);
                 if (!visitado) {
                     inserirPq(grafo.vertices[arcos.chave2]);
                 } else {
                     decrementa(grafo.vertices[arcos.chave2]);
                 }
                 arcos = arcos.irmao;
+            } 
             }
 
         }
 
-    }
+    
 
     // Funções para o heap
     public void iniciapq() {
@@ -162,10 +163,10 @@ public class EP2 {
     }
 
     public Vertice minimo() {
-        troca(1, N);
-        N--;
-        fixDown(1);
-        return pq[N + 1];
+       troca(1, N);
+       N--;
+       fixDown(1);
+       return pq[N+1];
     }
 
     //Problema aqui
@@ -173,18 +174,19 @@ public class EP2 {
         Vertice t = pq[i];
         pq[i] = pq[j];
         pq[j] = t;
-        qp[pq[i].chave] = j;
-        qp[pq[j].chave] = i;
-
+        qp[pq[j].chave] = j;
+        qp[pq[i].chave] = i;
     }
 
     public void fixUp(int i) {
-        while (i > 1 && custo[pq[i / 2].chave] > custo[pq[i].chave]) {
+        while (i > 1 && custo[pq[(int)(i / 2)].chave] > custo[pq[i].chave]) {
             troca(i / 2, i);
-            i = i / 2;
-        }
+            i = (int)(i / 2);
+        }   
+    
+       
     }
-
+    // Talvez aqui
     public void fixDown(int i) {
         int j;
         while (2 * i <= N) {
@@ -192,16 +194,20 @@ public class EP2 {
             if (j < N && custo[pq[j].chave] > custo[pq[j + 1].chave]) {
                 j++;
             }
-            if (custo[pq[i].chave] <= custo[pq[j].chave])
-                break;
+
+            if (custo[pq[i].chave] <= custo[pq[j].chave]){
+                return;
+            }
+
             troca(i, j);
             i = j;
         }
     }
 
+
+
     public void decrementa(Vertice vertice) {
-        pq[qp[vertice.chave]] = vertice;
-        fixUp(qp[vertice.chave]);
+        fixUp(qp[vertice.chave]); 
     }
 
     public static void main(String[] args) {
