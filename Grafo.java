@@ -18,25 +18,38 @@ public class Grafo {
             vertices[i] = new Vertice(i);
         }
 
-        vertices[0].primeiroArco = new Arco(0, 2, 7);
-        vertices[0].primeiroArco.irmao = new Arco (0,4,4);
-        vertices[0].primeiroArco.irmao.irmao = new Arco (0,3,2);
+        vertices[0].primeiroArco = new Arco(0, 1, 10);
+        vertices[0].primeiroArco.irmao = new Arco (0,2,5);
 
-        vertices[1].primeiroArco = new Arco(1, 2,0);
 
-        vertices[2].primeiroArco = new Arco(2, 4, 1);
+        vertices[1].primeiroArco = new Arco(1, 2,2);
+        vertices[1].primeiroArco.irmao = new Arco (1,3,1);
 
-        vertices[3].primeiroArco = new Arco(3, 4,1);
-        vertices[3].primeiroArco.irmao = new Arco (3, 5,3);
+
+        vertices[2].primeiroArco = new Arco(2, 1, 3);
+        vertices[2].primeiroArco.irmao = new Arco (2,3,9);
+        vertices[2].primeiroArco.irmao.irmao = new Arco (2,4,2);
+
+        vertices[3].primeiroArco = new Arco(3, 4,4);
+       
         
-        vertices[4].primeiroArco = new Arco(4, 1,4);
-        vertices[4].primeiroArco.irmao = new Arco (4, 5,1);
+        vertices[4].primeiroArco = new Arco(4, 3,6);
+        vertices[4].primeiroArco.irmao = new Arco (4,0,7);
 
-        vertices[5].primeiroArco = new Arco(5, 1,2);
+      
+
+        // vertices[5].primeiroArco = new Arco(5, 2,-3);
+        // vertices[5].primeiroArco.irmao = new Arco (5, 7,7);
+
+        
+        // vertices[6].primeiroArco = new Arco(6, 3,-6);
+        // vertices[6].primeiroArco.irmao = new Arco (6, 7,7);
+
+
     }
 
     public void geradorDAG() {
-        Random ajuda = new Random();
+        Random rand = new Random();
         int probabilidade;
         Arco arco;
         Arco anterior = null;
@@ -47,10 +60,14 @@ public class Grafo {
         for (int i = 0; i < vertices.length; i++) {
             for (int j = i + 1; j < vertices.length; j++) {
 
-                probabilidade = ajuda.nextInt(101);
+                probabilidade = rand.nextInt(101);
                 if (probabilidade < p * 100) {
 
-                    int peso = ajuda.nextInt(k);
+                    int peso = rand.nextInt(k+1);
+                        int sinal = rand.nextInt(2);
+                        if(sinal ==0 ){
+                            peso = peso*(-1);
+                        }
                     arco = new Arco(i, j, peso);
                     if (vertices[i].primeiroArco == null) {
                         vertices[i].primeiroArco = arco;
@@ -64,8 +81,8 @@ public class Grafo {
         }
     }
 
-    public void gerador() {
-        Random ajuda = new Random();
+    public void geradorBellmanFord() {
+        Random rand = new Random();
         int probabilidade;
         Arco arco;
         Arco anterior = null;
@@ -76,10 +93,14 @@ public class Grafo {
         for (int i = 0; i < vertices.length; i++) {
             for (int j = 0; j < vertices.length; j++) {
                 if (j != i) {
-                    probabilidade = ajuda.nextInt(101);
+                    probabilidade = rand.nextInt(101);
                     if (probabilidade < p * 100) {
 
-                        int peso = ajuda.nextInt(k);
+                        int peso = rand.nextInt(k+1);
+                        int sinal = rand.nextInt(2);
+                        if(sinal ==0 ){
+                            peso = peso*(-1);
+                        }
                         arco = new Arco(i, j, peso);
                         if (vertices[i].primeiroArco == null) {
                             vertices[i].primeiroArco = arco;
@@ -95,7 +116,7 @@ public class Grafo {
     }
 
     public void geradorDijkstra() {
-        Random ajuda = new Random();
+        Random rand= new Random();
         int probabilidade;
         Arco arco;
         Arco anterior = null;
@@ -106,10 +127,10 @@ public class Grafo {
         for (int i = 0; i < vertices.length; i++) {
             for (int j = 0; j < vertices.length; j++) {
                 if (j != i) {
-                    probabilidade = ajuda.nextInt(101);
+                    probabilidade = rand.nextInt(101);
                     if (probabilidade < p * 100) {
 
-                        int peso = ajuda.nextInt(k);
+                        int peso = rand.nextInt(k);
                         arco = new Arco(i, j, peso);
                         if (vertices[i].primeiroArco == null) {
                             vertices[i].primeiroArco = arco;
