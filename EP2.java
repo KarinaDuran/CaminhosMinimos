@@ -15,17 +15,18 @@ public class EP2 {
         }
     }
 
-    public void ordenacaoTopologica() {
-
+    public void ordenacaoTopologica(Grafo DAG) {
+         
     }
 
-    public void DAGmin(Grafo grafo, int chaveInicial) {
+    public void DAGmin(Grafo grafo, Vertice [] ts, int chaveInicial) {
         inicializarCaminhosMinimos(grafo);
-        int infinito = grafo.k * grafo.n;
+        int infinito = grafo.k * grafo.n+1;
         custo[chaveInicial] = 0;
-
+        Vertice aux;
+        Arco arcos;
         pais[chaveInicial] = chaveInicial;
-
+       
         // Atribui a todos os vertices valor infinito
         for (int i = 0; i < grafo.vertices.length; i++) {
             if (i != chaveInicial) {
@@ -33,6 +34,18 @@ public class EP2 {
                 pais[i] = -1;
             }
         }
+         int i;
+        for (aux = ts[i = 0]; i < grafo.vertices.length; aux = ts[i++]){ 
+            if (custo[i] != infinito){
+                arcos = grafo.vertices[i].primeiroArco;
+                while (arcos!= null){
+                    relaxar(arcos);
+                }
+                
+
+            }
+        }
+
 
     }
 
