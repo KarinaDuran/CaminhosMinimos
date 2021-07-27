@@ -27,7 +27,7 @@ public class EP2 {
         return Math.round(V); 
     }
 
-    
+
     public void ordenacaoTopologica(Grafo DAG) {
          
     }
@@ -64,40 +64,6 @@ public class EP2 {
     public void inicializarCaminhosMinimos(Grafo grafo) {
         custo = new int[grafo.n];
         pais = new int[grafo.n];
-    }
-
-    public void BellmanFordDAG(Grafo grafo, int chaveInicial) {
-        // Infinito eh o numero de pior caso (caso todos os vertices tenham peso k)
-        int infinito = grafo.k * grafo.n;
-        inicializarCaminhosMinimos(grafo);
-        // Atribui peso 0
-        custo[chaveInicial] = 0;
-
-        pais[chaveInicial] = chaveInicial;
-
-        // Atribui a todos os vertices valor infinito
-        for (int i = 0; i < grafo.vertices.length; i++) {
-            if (i != chaveInicial) {
-                custo[i] = infinito;
-                pais[i] = -1;
-            }
-        }
-        Arco arestas;
-
-        for (int i = 0; i < grafo.vertices.length; i++) {
-            for (int j = 0; j < grafo.vertices.length; j++) {
-                arestas = grafo.vertices[j].primeiroArco;
-                while (arestas != null) {
-                    if (custo[arestas.chave1] != infinito) {
-                        relaxar(arestas);
-                        arestas = arestas.irmao;
-                    }
-
-                }
-            }
-
-        }
-
     }
 
     // Método que implementa o algoritmo de BellmanFord
