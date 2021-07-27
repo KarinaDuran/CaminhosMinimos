@@ -10,20 +10,34 @@ public class EP2 {
     public void imprimirVertices(Grafo grafo) {
         for (int i = 0; i < grafo.vertices.length; i++) {
             System.out.println("chave: " + grafo.vertices[i].chave);
+            if(pais!=null ){
             System.out.println("pai: " + pais[i]);
             System.out.println("peso: " + custo[i]);
+            }
         }
     }
+    //Metodosauxiliares para encontrar o numero de vertices esperado para o tamanho total do digrafo
+    public int calculaNVertices (int entradaEsperada, double p){
+        float V =  (float) (((p - 1) + Math.sqrt(Math.pow((1-p),2) +4*p*entradaEsperada))/(2*p));
+        return Math.round(V);
+    }
+    //Metodo para DAG
+    public int calculaNVerticesDAG (int entradaEsperada, double p){
+        float V =  (float) ((p/2 - 1 + Math.sqrt(Math.pow((1-p/2),2) +4*p/2*entradaEsperada))/p);
+        return Math.round(V); 
+    }
 
+    
     public void ordenacaoTopologica(Grafo DAG) {
          
     }
 
-    public void DAGmin(Grafo grafo, Vertice [] ts, int chaveInicial) {
+
+
+    public void DAGmin(Grafo grafo, int [] ts, int chaveInicial) {
         inicializarCaminhosMinimos(grafo);
         int infinito = grafo.k * grafo.n+1;
         custo[chaveInicial] = 0;
-        Vertice aux;
         Arco arcos;
         pais[chaveInicial] = chaveInicial;
        
@@ -35,18 +49,15 @@ public class EP2 {
             }
         }
          int i;
-        for (aux = ts[i = 0]; i < grafo.vertices.length; aux = ts[i++]){ 
+        for (Vertice aux = grafo.vertices[ts[i = 0]]; i < grafo.vertices.length; aux = grafo.vertices[ts[i++]]){ 
             if (custo[i] != infinito){
-                arcos = grafo.vertices[i].primeiroArco;
+                arcos = aux.primeiroArco;
                 while (arcos!= null){
                     relaxar(arcos);
                 }
                 
-
             }
         }
-
-
     }
 
     // Inicializa os vetores de custo e dos pais
@@ -123,23 +134,6 @@ public class EP2 {
 
         }
 
-        boolean cicloNegativo = false;
-        // Verifica se existem ciclos negativos
-        for (int i = 0; i < grafo.vertices.length; i++) {
-            arestas = grafo.vertices[i].primeiroArco;
-            while (arestas != null) {
-                if (custo[arestas.chave2] > custo[arestas.chave1] + arestas.peso) {
-                    cicloNegativo = true;
-                }
-
-                arestas = arestas.irmao;
-            }
-        }
-
-        if (cicloNegativo == true) {
-            System.out.println("O grafo possui ciclos negativos");
-        }
-
     }
 
     // Método que recebe um arco como parametro e compara o peso do vertice destino
@@ -187,12 +181,6 @@ public class EP2 {
             arcos = aux.primeiroArco;
             boolean visitado;
             while (arcos != null) {
-                // Verifica se existe algum arco com peso negativo
-                if (arcos.peso < 0) {
-                    System.out.println(
-                            "Esse grafo contém pesos negativos, não é possível realizar o algoritmo de Dijkstra");
-                    return;
-                }
                 // Verifica se o valor do vértice destino precisa ser melhorado
                 // Esse if apenas auxilia na reducao do gasto de tempo acessando métodos somente
                 // quando necessario, vendo que no metodo relaxar ja existe essa verificacao
@@ -292,11 +280,33 @@ public class EP2 {
     }
 
     public static void main(String[] args) {
-        Grafo grafo = new Grafo(5, 10, 78);
-        grafo.geradorTeste();
+        int entradaEsperada = 20;
+        double probabilidade = 0.1;
+        int pesoMaximo = 60;
+
         EP2 aux = new EP2();
-        aux.Dijkstra(grafo, 0);
-        aux.imprimirVertices(grafo);
+        int vertices = aux.calculaNVertices(entradaEsperada, probabilidade);
+        
+        Grafo grafo = new Grafo(vertices, probabilidade, pesoMaximo);
+        grafo.gerador();
+
+        int verticesDAG = aux.calculaNVerticesDAG(entradaEsperada, probabilidade);
+        Grafo DAG = new Grafo(verticesDAG, probabilidade,pesoMaximo);
+        grafo.geradorDAG();
+
+
+        // aux.BellmanFord(grafo, 0);
+
+        // aux.imprimirVertices(grafo);
+        // for(int i =0; i<grafo.vertices.length; i++){
+        //     System.out.println("chave " + grafo.vertices[i].chave);
+        //     Arco arcos = grafo.vertices[i].primeiroArco;
+        //     while (arcos != null){
+        //         System.out.println("Arco: "+ arcos.chave1 + " " + arcos.chave2);
+        //         // System.out.println("peso " + arcos.peso);
+        //         arcos = arcos.irmao;
+        //     }
+        // }
 
     }
 }

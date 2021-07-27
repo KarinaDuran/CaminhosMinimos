@@ -1,16 +1,21 @@
 import java.util.Random;
 public class Grafo {
     public int n;
-    public int p;
+    public double p;
     public int k;
     public Vertice [] vertices;
 
 
-    Grafo(int n, int p, int k) {
+    Grafo(int n, double p, int k) {
+        if(p>0 && n>0 && k >0 && p<1){
         vertices = new Vertice[n];
         this.n = n;
         this.p = p;
         this.k = k;
+        }
+        else{
+            System.out.println("Um dos valores está negativo ou a probabilidade é maior que 1.");
+        }
     }
 
     public void geradorTeste(){
@@ -57,17 +62,11 @@ public class Grafo {
             vertices[i] = new Vertice(i);
         }
         // Igual o gerador anterior, mas com j > i
-        for (int i = 0; i < vertices.length; i++) {
+        for (int i = 0; i < vertices.length-1; i++) {
             for (int j = i + 1; j < vertices.length; j++) {
-
                 probabilidade = rand.nextInt(101);
-                if (probabilidade < p * 100) {
-
+                if (probabilidade <= p * 100) {
                     int peso = rand.nextInt(k+1);
-                        int sinal = rand.nextInt(2);
-                        if(sinal ==0 ){
-                            peso = peso*(-1);
-                        }
                     arco = new Arco(i, j, peso);
                     if (vertices[i].primeiroArco == null) {
                         vertices[i].primeiroArco = arco;
@@ -81,41 +80,8 @@ public class Grafo {
         }
     }
 
-    public void geradorBellmanFord() {
-        Random rand = new Random();
-        int probabilidade;
-        Arco arco;
-        Arco anterior = null;
-        for (int i = 0; i < vertices.length; i++) {
-            vertices[i] = new Vertice(i);
-        }
 
-        for (int i = 0; i < vertices.length; i++) {
-            for (int j = 0; j < vertices.length; j++) {
-                if (j != i) {
-                    probabilidade = rand.nextInt(101);
-                    if (probabilidade < p * 100) {
-
-                        int peso = rand.nextInt(k+1);
-                        int sinal = rand.nextInt(2);
-                        if(sinal ==0 ){
-                            peso = peso*(-1);
-                        }
-                        arco = new Arco(i, j, peso);
-                        if (vertices[i].primeiroArco == null) {
-                            vertices[i].primeiroArco = arco;
-                            anterior = arco;
-                        } else {
-                            anterior.irmao = arco;
-                            anterior = arco;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void geradorDijkstra() {
+    public void gerador() {
         Random rand= new Random();
         int probabilidade;
         Arco arco;
@@ -123,14 +89,13 @@ public class Grafo {
         for (int i = 0; i < vertices.length; i++) {
             vertices[i] = new Vertice(i);
         }
-
         for (int i = 0; i < vertices.length; i++) {
             for (int j = 0; j < vertices.length; j++) {
                 if (j != i) {
                     probabilidade = rand.nextInt(101);
-                    if (probabilidade < p * 100) {
+                    if (probabilidade <= p * 100) {
 
-                        int peso = rand.nextInt(k);
+                        int peso = rand.nextInt(k+1);
                         arco = new Arco(i, j, peso);
                         if (vertices[i].primeiroArco == null) {
                             vertices[i].primeiroArco = arco;
