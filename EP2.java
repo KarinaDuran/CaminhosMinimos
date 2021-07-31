@@ -1,83 +1,173 @@
 
+
 public class EP2 {
-    public static int N;
-    public static Vertice[] pq;
-    public static int[] qp;
+    public int N;
+    public Vertice[] pq;
+    public int[] qp;
     public int[] custo;
     public int[] pais;
+    // Auxiliares para DAGS
+    int[] visitado;
+    public int[] fila;
+    public int inicio;
+    public int fim;
 
-    // Metodo para impressao de vertices na ordem em que estao no grafo
-    public void imprimirVertices(Grafo grafo) {
-        for (int i = 0; i < grafo.vertices.length; i++) {
-            System.out.println("chave: " + grafo.vertices[i].chave);
-            if(pais!=null ){
-            System.out.println("pai: " + pais[i]);
-            System.out.println("peso: " + custo[i]);
+    // Metodo para impressao de vertices na ordem em que estao no digrafo
+    public void imprimirVertices(Digrafo digrafo) {
+        for (int i = 0; i < digrafo.vertices.length; i++) {
+            System.out.println("chave: " + digrafo.vertices[i].chave);
+            // Imprirmir pos achar os caminhos minimos
+            if (pais != null) {
+                System.out.println("pai: " + pais[i]);
+                System.out.println("peso: " + custo[i]);
+                // Para imprimir todos os arcos, antes de encontrar o caminho minimo
+            } else {
+                Arco aux = digrafo.vertices[i].primeiroArco;
+                while (aux != null) {
+                    System.out.println(aux.chave2 + " " + aux.peso);
+                    aux = aux.irmao;
+                }
             }
         }
     }
-    //Metodosauxiliares para encontrar o numero de vertices esperado para o tamanho total do digrafo
-    public int calculaNVertices (int entradaEsperada, double p){
-        float V =  (float) (((p - 1) + Math.sqrt(Math.pow((1-p),2) +4*p*entradaEsperada))/(2*p));
+
+    // Metodos auxiliares para encontrar o numero de vertices esperado para o tamanho
+    // total do digrafo
+    public int calculaNVertices(int entradaEsperada, double p) {
+        float V = (float) (((p - 1) + Math.sqrt(Math.pow((1 - p), 2) + 4 * p * entradaEsperada)) / (2 * p));
         return Math.round(V);
     }
-    //Metodo para DAG
-    public int calculaNVerticesDAG (int entradaEsperada, double p){
-        float V =  (float) ((p/2 - 1 + Math.sqrt(Math.pow((1-p/2),2) +4*p/2*entradaEsperada))/p);
-        return Math.round(V); 
+
+    // Metodo para DAG
+    public int calculaNVerticesDAG(int entradaEsperada, double p) {
+        float V = (float) ((p / 2 - 1 + Math.sqrt(Math.pow((1 - p / 2), 2) + 4 * p / 2 * entradaEsperada)) / p);
+        return Math.round(V);
     }
 
-
-    public void ordenacaoTopologica(Grafo DAG) {
-         
-    }
-
-
-
-    public void DAGmin(Grafo grafo, int [] ts, int chaveInicial) {
-        inicializarCaminhosMinimos(grafo);
-        int infinito = grafo.k * grafo.n+1;
-        custo[chaveInicial] = 0;
+    // Retorna a ordenacao topologica
+    public int[] ordenacaoTopologica(Digrafo DAG, int chaveInicial) {
+        int[] ts = new int[DAG.vertices.length];
+        // Vetor auxiliar para saber qual o grau de entrada
+        int[] entrada = new int[DAG.vertices.length - chaveInicial];
+        // Inicialmente todos 0
+        for (int v = chaveInicial; v < entrada.length; v++) {
+            entrada[v] = 0;
+        }
+        // Percorre todos os arcos para descobrir o grau de todo mundo
         Arco arcos;
+        for (int v = chaveInicial; v < DAG.vertices.length; v++) {
+            arcos = DAG.vertices[v].primeiroArco;
+            while (arcos != null) {
+                entrada[arcos.chave2] = entrada[arcos.chave2] + 1;
+                arcos = arcos.irmao;
+
+            }
+        }
+        // Inicia a fila
+        QUEUEinit(entrada.length);
+        for (int v = chaveInicial; v < DAG.vertices.length; v++) {
+            // Adiciona as fontes na fila
+            if (entrada[v] == 0)
+                QUEUEput(v);
+        }
+
+        int i = 0;
+        int v;
+        // Percorre a fila
+        while (!QUEUEempty()) {
+            v = QUEUEget();
+            ts[i] = v;
+            arcos = DAG.vertices[v].primeiroArco;
+            while (arcos != null) {
+                entrada[arcos.chave2] = entrada[arcos.chave2] - 1;
+                // Se o vertice destino ja tiver grau 0 de entrada, adiciona na fila
+                if (entrada[arcos.chave2] == 0) {
+                    QUEUEput(arcos.chave2);
+                }
+                arcos = arcos.irmao;
+            }
+            i++;
+        }
+        return ts;
+    }
+
+    // Funcoes de implementacao de fila
+    public void QUEUEinit(int tamanho) {
+        fila = new int[tamanho];
+        fim = 0;
+        inicio = 0;
+
+    }
+
+    public boolean QUEUEempty() {
+        return inicio == fim;
+    }
+
+    public void QUEUEput(int posicao) {
+        fila[fim] = posicao;
+        fim++;
+    }
+
+    public int QUEUEget() {
+        int retorno;
+        retorno = fila[inicio];
+        inicio++;
+        return retorno;
+    }
+
+    // Algoritmo de DAGmin
+    public void DAGmin(Digrafo digrafo, int chaveInicial) {
+        // Estipula um valor máximo
+        int infinito = digrafo.k * digrafo.n + 1;
+        int[] ts = ordenacaoTopologica(digrafo, chaveInicial);
+        Arco arcos;
+        // Inicializa os vetores auxiliares
+        inicializarCaminhosMinimos(digrafo);
+        // Inicializa o custo da chave inicial com 0 e o pai como ele mesmo
+        custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
-       
         // Atribui a todos os vertices valor infinito
-        for (int i = 0; i < grafo.vertices.length; i++) {
+        for (int i = 0; i < digrafo.vertices.length; i++) {
+
             if (i != chaveInicial) {
                 custo[i] = infinito;
                 pais[i] = -1;
             }
         }
-         int i;
-        for (Vertice aux = grafo.vertices[ts[i = 0]]; i < grafo.vertices.length; aux = grafo.vertices[ts[i++]]){ 
-            if (custo[i] != infinito){
+
+        // Percorre o vetor de ordenação topológica
+        int i;
+        for (Vertice aux = digrafo.vertices[ts[i = 0]]; i < ts.length; aux = digrafo.vertices[ts[i++]]) {
+            if (custo[ts[i]] != infinito) {
+                // Percorre os arcos do vertice
                 arcos = aux.primeiroArco;
-                while (arcos!= null){
+                while (arcos != null) {
                     relaxar(arcos);
+                    arcos = arcos.irmao;
                 }
-                
+
             }
         }
     }
 
     // Inicializa os vetores de custo e dos pais
-    public void inicializarCaminhosMinimos(Grafo grafo) {
-        custo = new int[grafo.n];
-        pais = new int[grafo.n];
+    public void inicializarCaminhosMinimos(Digrafo digrafo) {
+        custo = new int[digrafo.n];
+        pais = new int[digrafo.n];
     }
 
     // Método que implementa o algoritmo de BellmanFord
-    public void BellmanFord(Grafo grafo, int chaveInicial) {
+    public void BellmanFord(Digrafo digrafo, int chaveInicial) {
         // Infinito eh o numero de pior caso (caso todos os vertices tenham peso k)
-        int infinito = grafo.k * grafo.n + 1;
+        int infinito = digrafo.k * digrafo.n + 1;
         // Inicializa os vetores
-        inicializarCaminhosMinimos(grafo);
+        inicializarCaminhosMinimos(digrafo);
         // Custo recebe 0 e o pai do vertice inicial é ele mesmo
         custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
 
         // Atribui a todos os vertices valor infinito
-        for (int i = 0; i < grafo.vertices.length; i++) {
+        for (int i = 0; i < digrafo.vertices.length; i++) {
             if (i != chaveInicial) {
                 custo[i] = infinito;
                 pais[i] = -1;
@@ -86,11 +176,11 @@ public class EP2 {
         // Arco auxiliar
         Arco arestas;
         // Percorre V vezes
-        for (int i = 1; i < grafo.vertices.length; i++) {
+        for (int i = 1; i < digrafo.vertices.length; i++) {
             // Percorre cada vertices
-            for (int j = 0; j < grafo.vertices.length; j++) {
+            for (int j = 0; j < digrafo.vertices.length; j++) {
                 // Relaxa todas as arestas que saem do vertice
-                arestas = grafo.vertices[j].primeiroArco;
+                arestas = digrafo.vertices[j].primeiroArco;
                 while (arestas != null) {
                     relaxar(arestas);
                     arestas = arestas.irmao;
@@ -115,20 +205,20 @@ public class EP2 {
     }
 
     // Método que implementa o algoritmo de Dijkstra
-    public void Dijkstra(Grafo grafo, int chaveInicial) {
-        int infinito = grafo.k * grafo.n + 1;
-        inicializarCaminhosMinimos(grafo);
+    public void Dijkstra(Digrafo digrafo, int chaveInicial) {
+        int infinito = digrafo.k * digrafo.n + 1;
+        inicializarCaminhosMinimos(digrafo);
         custo[chaveInicial] = 0;
         pais[chaveInicial] = chaveInicial;
 
-        Arco arcos = grafo.vertices[chaveInicial].primeiroArco;
+        Arco arcos = digrafo.vertices[chaveInicial].primeiroArco;
 
         // Inicializa os vetores para o heap
-        pq = new Vertice[grafo.vertices.length + 1];
-        qp = new int[grafo.vertices.length];
+        pq = new Vertice[digrafo.vertices.length + 1];
+        qp = new int[digrafo.vertices.length];
 
         // Todos os vértices com exceção do inicial inicializados com infinito e pai -1
-        for (int i = 0; i < grafo.vertices.length; i++) {
+        for (int i = 0; i < digrafo.vertices.length; i++) {
             if (i != chaveInicial) {
                 custo[i] = infinito;
                 pais[i] = -1;
@@ -138,7 +228,7 @@ public class EP2 {
         // Inicializa o heap
         iniciapq();
         // Insere o vertice iniial
-        inserirPq(grafo.vertices[chaveInicial]);
+        inserirPq(digrafo.vertices[chaveInicial]);
 
         // Enquanto o heap não estiver vazio
         while (!pqVazio()) {
@@ -157,10 +247,10 @@ public class EP2 {
                     relaxar(arcos);
                     if (!visitado) {
                         // Se não foi visitado, insere no heap
-                        inserirPq(grafo.vertices[arcos.chave2]);
+                        inserirPq(digrafo.vertices[arcos.chave2]);
                     } else {
                         // Se já foi visitado, decrementa
-                        decrementa(grafo.vertices[arcos.chave2]);
+                        decrementa(digrafo.vertices[arcos.chave2]);
                     }
                 }
                 // Pega o próximo arco
@@ -245,34 +335,5 @@ public class EP2 {
         fixUp(qp[vertice.chave]);
     }
 
-    public static void main(String[] args) {
-        int entradaEsperada = 20;
-        double probabilidade = 0.1;
-        int pesoMaximo = 60;
-
-        EP2 aux = new EP2();
-        int vertices = aux.calculaNVertices(entradaEsperada, probabilidade);
-        
-        Grafo grafo = new Grafo(vertices, probabilidade, pesoMaximo);
-        grafo.gerador();
-
-        int verticesDAG = aux.calculaNVerticesDAG(entradaEsperada, probabilidade);
-        Grafo DAG = new Grafo(verticesDAG, probabilidade,pesoMaximo);
-        grafo.geradorDAG();
-
-
-        // aux.BellmanFord(grafo, 0);
-
-        // aux.imprimirVertices(grafo);
-        // for(int i =0; i<grafo.vertices.length; i++){
-        //     System.out.println("chave " + grafo.vertices[i].chave);
-        //     Arco arcos = grafo.vertices[i].primeiroArco;
-        //     while (arcos != null){
-        //         System.out.println("Arco: "+ arcos.chave1 + " " + arcos.chave2);
-        //         // System.out.println("peso " + arcos.peso);
-        //         arcos = arcos.irmao;
-        //     }
-        // }
-
-    }
+   
 }
