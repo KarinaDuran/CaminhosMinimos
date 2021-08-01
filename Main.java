@@ -1,3 +1,8 @@
+/*
+Guilherme Umemura (9353592)
+Karina Duran Munhos (11295911)
+*/
+
 import java.io.FileWriter;
 import java.io.IOException;
 
